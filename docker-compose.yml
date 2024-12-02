@@ -1,0 +1,46 @@
+services:
+    bbel-tasks:
+        container_name: bbel-tasks
+        restart: always
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "6000:6000"
+        volumes:
+            - .:/app
+        depends_on:
+            - bbel-postgres
+        working_dir: /app
+        stdin_open: true
+        tty: true
+
+    bbel-postgres:
+        container_name: bbel-postgres
+        restart: always
+        image: postgres:15
+        environment:
+            POSTGRES_USER: bbel_user
+            POSTGRES_PASSWORD: bbel_4dm1n
+            POSTGRES_DB: bbel_tasks
+        ports:
+            - "5435:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+
+    bbel-pgadmin:
+        container_name: bbel-pgadmin
+        restart: always
+        image: dpage/pgadmin4
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@bbel.local
+            PGADMIN_DEFAULT_PASSWORD: bbel_4dm1n
+        ports:
+            - "5757:80"
+        extra_hosts:
+            - "bbel.localhost:127.0.0.1"
+        depends_on:
+            - bbel-postgres
+
+volumes:
+    postgres_data:
